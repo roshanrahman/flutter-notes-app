@@ -2,14 +2,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:notes/data/models.dart';
+import 'package:notes/services/database.dart';
 import 'settings.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 import '../components/cards.dart';
 import '../data/theme.dart';
 
 class MyHomePage extends StatefulWidget {
-  
-  MyHomePage({Key key, this.title, Function(Brightness brightness) changeTheme}) : super(key: key) {}
+  Function(Brightness brightness) changeTheme;
+  MyHomePage({Key key, this.title, Function(Brightness brightness) changeTheme})
+      : super(key: key) {
+    this.changeTheme = changeTheme;
+  }
 
   final String title;
 
@@ -19,6 +23,25 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool isFlagOn = false;
+  List<NotesModel> notesList = [];
+
+  bool isSearchEmpty = true;
+
+  @override
+  void initState() {
+    super.initState();
+    NotesDatabaseService.db.init();
+    setNotesFromDB();
+  }
+
+  setNotesFromDB() async {
+    print("Entered setNotes");
+    var fetchedNotes = await NotesDatabaseService.db.getNotesFromDB();
+    setState(() {
+      notesList = fetchedNotes;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +65,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     Navigator.push(
                         context,
                         CupertinoPageRoute(
-                            builder: (context) => SettingsPage(changeTheme: changeTheme)));
+                            builder: (context) =>
+                                SettingsPage(changeTheme: widget.changeTheme)));
                   },
                   child: AnimatedContainer(
                     duration: Duration(milliseconds: 200),
@@ -60,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
             buildButtonRow(),
             buildImportantIndicatorText(),
             Container(height: 32),
-            ..buildNoteComponentsList(),
+            ...buildNoteComponentsList(),
             AddNoteCardComponent(),
             Container(height: 100)
           ],
@@ -117,8 +141,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   Expanded(
                     child: TextField(
                       maxLines: 1,
+                      onChanged: (value) {
+                        print("Entered onChange $value");
+                        handleSearch(value);
+                      },
                       autofocus: false,
                       keyboardType: TextInputType.text,
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                       textInputAction: TextInputAction.search,
                       decoration: InputDecoration.collapsed(
                         hintText: 'Search',
@@ -131,7 +161,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.search, color: Colors.grey.shade300),
+                    icon: Icon(isSearchEmpty ? Icons.search : Icons.cancel,
+                        color: Colors.grey.shade300),
                     onPressed: () {},
                   ),
                 ],
@@ -183,6 +214,22 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<Widget> buildNoteComponentsList() {
-    
+    List<Widget> noteComponentsList = [];
+    notesList.forEach((note) {
+      noteComponentsList.add(NoteCardComponent(noteData: note));
+    });
+    return noteComponentsList;
+  }
+
+  void handleSearch(String value) {
+    if (value.isNotEmpty) {
+      setState(() {
+        isSearchEmpty = false;
+      });
+    } else {
+      setState(() {
+        isSearchEmpty = true;
+      });
+    }
   }
 }

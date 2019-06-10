@@ -21,14 +21,13 @@ class NotesDatabaseService {
   init() async {
     String path = await getDatabasesPath();
     path = join(path, 'notes.db');
+    print("Entered path $path");
 
-    var getDatabase = openDatabase(path, version: 1,
+    return await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
       await db.execute(
-          'CREATE TABLE Notes (_id INTEGER PRIMARY KEY, title TEXT, content TEXT, date TEXT, isImportant INTEGER');
+          'CREATE TABLE Notes (_id INTEGER PRIMARY KEY, title TEXT, content TEXT, date TEXT, isImportant INTEGER);');
       print('New table created at $path');
-    }).then((readyDatabase) {
-      return readyDatabase;
     });
   }
 
