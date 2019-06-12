@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notes/services/sharedPref.dart';
 import 'screens/home.dart';
 import 'data/theme.dart';
 
@@ -12,6 +13,12 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   ThemeData theme = appThemeLight;
+  @override
+  void initState() {
+    super.initState();
+    updateThemeFromSharedPref();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -30,6 +37,15 @@ class _MyAppState extends State<MyApp> {
       setState(() {
         theme = appThemeLight;
       });
+    }
+  }
+
+  void updateThemeFromSharedPref() async {
+    String themeText = await getThemeFromSharedPref();
+    if (themeText == 'light') {
+      setTheme(Brightness.light);
+    } else {
+      setTheme(Brightness.dark);
     }
   }
 }
