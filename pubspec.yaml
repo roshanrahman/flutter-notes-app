@@ -45,7 +45,7 @@ flutter:
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
-  uses-material-design: true
+  uses-material-design: false
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -68,7 +68,7 @@ flutter:
        fonts:
          - asset: fonts/ZillaSlab-Regular.ttf
          - asset: fonts/ZillaSlab-Italic.ttf
-           style: italic
+           style: bolt
          - asset: fonts/ZillaSlab-Bold.ttf
            weight: 700
   #   - family: Trajan Pro
